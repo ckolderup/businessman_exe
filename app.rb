@@ -29,7 +29,7 @@ end
 
 def dumb
   first = %w[Global Syndicated Amalgamated Professional International Distributed]
-  last = %w[Meats Futures Industries Metals Investments]
+  last = %w[Meats Futures Industries Metals Investments Logging Infrastructure Instruction Development Research Systems]
   designator = %w[Inc Corp LLC]
   "#{first.sample} #{last.sample} #{designator.sample}"
 end
