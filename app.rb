@@ -1,6 +1,8 @@
 require 'tempfile'
 require 'twitter'
 require 'optparse'
+require 'rmagick'
+include Magick
 
 options = {}
 OptionParser.new do |opts|
@@ -40,26 +42,72 @@ def acronym
   acro
 end
 
-def image
+def image(name, title, company)
   file = Tempfile.new('bizman')
   file.write(`curl -s "http://www.avatarpro.biz/avatar?s=500" | curl -s -F file=@- cga.graphics/api/convert/`)
+  file.rewind
+  bin = File.open(file,'r'){ |f| f.read }
+  image = Image.from_blob(bin).first
+  append = Image.new(750, 500) do
+    self.background_color = 'black'
+  end
+
+  draw = Draw.new
+
+  text_width = 550
+  text_height = 50
+  text_margin = 15
+  name_y = 260
+  title_y = 400
+  company_y = 475
+
+  draw.annotate(append, text_width, text_height, text_margin, name_y, name) do
+    self.font = './scumm.ttf'
+    self.pointsize = 56
+    self.fill = 'white'
+    self.text_antialias = true
+    self.stroke_width = 2
+    self.font_weight = 900
+  end
+
+  draw.annotate(append, text_width, text_height, text_margin, title_y, title) do
+    self.font = './scumm.ttf'
+    self.pointsize = 24
+    self.fill = 'white'
+    self.text_antialias = true
+    self.stroke_width = 2
+  end
+
+  draw.annotate(append, text_width, text_height, text_margin, company_y, company) do
+    self.font = './scumm.ttf'
+    self.pointsize = 48
+    self.fill = 'white'
+    self.text_antialias = true
+    self.stroke_width = 2
+  end
+
+  combined = (ImageList.new << image << append).append(false)
+
+  file.write(combined.to_blob)
   file.rewind
   file
 end
 
 company = %w[named_firm computer_company dumb acronym]
 
+@name = nil
+@title = nil
+@company = nil
 length = 141
 while length > 140 do
-    out = "#{@firsts.sample.chomp} "
-    out << "#{@surnames.sample.chomp}, "
-    out << "#{@ranks.sample.chomp} "
-    out << "#{@departments.sample.chomp} "
-    out << @titles.sample.chomp
-    out << " at #{send(company.sample)}"
+    @name = "#{@firsts.sample.chomp} #{@surnames.sample.chomp}"
+    @title = "#{@ranks.sample.chomp} #{@departments.sample.chomp} #{@titles.sample.chomp}"
+    @company = "#{send(company.sample)}"
+    out = "#{@name}, #{@title} at #{@company}"
     length = out.length
 end
 
+rendered = image(@name, @title, @company)
 
 if options[:tweet] then
     client = Twitter::REST::Client.new do |config|
@@ -68,7 +116,8 @@ if options[:tweet] then
       config.access_token        = ENV['TWITTER_OAUTH_TOKEN']
       config.access_token_secret = ENV['TWITTER_OAUTH_SECRET']
     end
-    client.update_with_media(out, image)
+    client.update_with_media(out, rendered)
 else
     puts out
+    `cp #{rendered.path} bizman.png`
 end
