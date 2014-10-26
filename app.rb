@@ -1,7 +1,7 @@
 require 'tempfile'
 require 'twitter'
 require 'optparse'
-require 'rmagick'
+require 'RMagick'
 include Magick
 
 options = {}
