@@ -34,7 +34,7 @@ def first_name
 end
 
 def surname
-  if rand(1..100) >= 65
+  if rand(1..100) >= 25
     @spoopy.sample
   else
     @surnames.sample.chomp
