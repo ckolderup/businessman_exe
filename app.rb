@@ -22,19 +22,38 @@ end.parse!
 @departments = File.readlines("department.txt")
 @titles = File.readlines("title.txt")
 
+@valentine = %w{Cupid Love Arrow Chocolate Valentine Romance Beau Bouquet
+  Candy Devoted Enamored Flirt Flowers Heartthrob Hugger Kisser Lovebird Lovesick Poetry Rose Admirer Suitor Sweets}
+
+def first_name
+  if rand(1..100) >= 97
+    @valentine.sample
+  else
+    @firsts.sample.chomp
+  end
+end
+
+def surname
+  if rand(1..100) >= 25
+    @valentine.sample
+  else
+    @surnames.sample.chomp
+  end
+end
+
 def computer_company
-  company_front = %w[Elec Inter Macro Globo Hyper Infra]
+  company_front = %w[Elec Inter Macro Globo Hyper Infra] + @valentine
   company_back = %w[tron node trode soft systems ]
   "#{company_front.sample}#{company_back.sample}"
 end
 
 def named_firm
-  "#{@surnames.sample.chomp} & #{@surnames.sample.chomp}"
+  "#{surname} & #{surname}"
 end
 
 def dumb
   first = %w[Global Syndicated Amalgamated Professional International Distributed]
-  last = %w[Meats Futures Industries Metals Investments Logging Infrastructure Instruction Development Research Systems]
+  last = %w[Meats Futures Industries Metals Investments Logging Infrastructure Instruction Development Research Systems] + @valentine
   designator = %w[Inc Corp LLC]
   "#{first.sample} #{last.sample} #{designator.sample}"
 end
@@ -51,6 +70,10 @@ def image(name, title, company)
   file.rewind
   bin = File.open(file,'r'){ |f| f.read }
   image = Image.from_blob(bin).first
+
+  image = image.opaque('#55FFFF', 'pink')
+  image = image.opaque('#FF55FF', 'red')
+
   append = Image.new(750, 500) do
     self.background_color = 'black'
   end
@@ -91,19 +114,35 @@ def image(name, title, company)
 
   combined = (ImageList.new << image << append).append(false)
 
+  hearts = Array.new(6) do
+    heart = Image.read("./pixel-heart.png").first
+    heart.alpha(ActivateAlphaChannel)
+    #heart.rotate!([10, -10].sample)
+    heart
+  end
+
+  hearts.each_with_index do |heart, idx|
+    row = idx % 3
+    col = idx / 3
+    y = (row * 175) + (0..100).to_a.sample
+    x = (col * 300) + (0..200).to_a.sample
+    next if (1..100).to_a.sample < 50
+    combined.composite!(heart, x, y, OverCompositeOp)
+  end
+
   file.write(combined.to_blob)
   file.rewind
   file
 end
 
-company = %w[named_firm computer_company dumb acronym]
+company = %w[named_firm computer_company dumb] #acronym]
 
 @name = nil
 @title = nil
 @company = nil
 length = 141
 while length > 140 do
-    @name = "#{@firsts.sample.chomp} #{@surnames.sample.chomp}"
+    @name = "#{first_name} #{surname}"
     @title = "#{@ranks.sample.chomp} #{@departments.sample.chomp} #{@titles.sample.chomp}"
     @company = "#{send(company.sample)}"
     out = "#{@name}, #{@title} at #{@company}"
