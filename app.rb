@@ -88,6 +88,21 @@ def image(name, title, company)
 
   combined = (ImageList.new << image << append).append(false)
 
+  flags = Array.new(6) do
+    flag = Image.read("./pixel-flag.png").first
+    flag.alpha(ActivateAlphaChannel)
+    flag
+  end
+
+  flags.each_with_index do |flag, idx|
+    row = idx % 3
+    col = idx / 3
+    y = (row * 175) + (0..100).to_a.sample
+    x = (col * 300) + (0..200).to_a.sample
+    next if (1..100).to_a.sample < 50
+    combined.composite!(flag, x, y, OverCompositeOp)
+  end
+
   file.write(combined.to_blob)
   file.rewind
   file
