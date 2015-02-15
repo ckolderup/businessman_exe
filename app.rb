@@ -19,38 +19,19 @@ end.parse!
 @departments = File.readlines("department.txt")
 @titles = File.readlines("title.txt")
 
-@valentine = %w{Cupid Love Arrow Chocolate Valentine Romance Beau Bouquet
-  Candy Devoted Enamored Flirt Flowers Heartthrob Hugger Kisser Lovebird Lovesick Poetry Rose Admirer Suitor Sweets}
-
-def first_name
-  if rand(1..100) >= 97
-    @valentine.sample
-  else
-    @firsts.sample.chomp
-  end
-end
-
-def surname
-  if rand(1..100) >= 25
-    @valentine.sample
-  else
-    @surnames.sample.chomp
-  end
-end
-
 def computer_company
-  company_front = %w[Elec Inter Macro Globo Hyper Infra] + @valentine
+  company_front = %w[Elec Inter Macro Globo Hyper Infra]
   company_back = %w[tron node trode soft systems ]
   "#{company_front.sample}#{company_back.sample}"
 end
 
 def named_firm
-  "#{surname} & #{surname}"
+  "#{@surnames.sample.chomp} & #{@surnames.sample.chomp}"
 end
 
 def dumb
   first = %w[Global Syndicated Amalgamated Professional International Distributed]
-  last = %w[Meats Futures Industries Metals Investments Logging Infrastructure Instruction Development Research Systems] + @valentine
+  last = %w[Meats Futures Industries Metals Investments Logging Infrastructure Instruction Development Research Systems]
   designator = %w[Inc Corp LLC]
   "#{first.sample} #{last.sample} #{designator.sample}"
 end
@@ -67,10 +48,6 @@ def image(name, title, company)
   file.rewind
   bin = File.open(file,'r'){ |f| f.read }
   image = Image.from_blob(bin).first
-
-  image = image.opaque('#55FFFF', 'pink')
-  image = image.opaque('#FF55FF', 'red')
-
   append = Image.new(750, 500) do
     self.background_color = 'black'
   end
@@ -116,14 +93,14 @@ def image(name, title, company)
   file
 end
 
-company = %w[named_firm computer_company dumb] #acronym]
+company = %w[named_firm computer_company dumb acronym]
 
 @name = nil
 @title = nil
 @company = nil
 length = 141
 while length > 140 do
-    @name = "#{first_name} #{surname}"
+    @name = "#{@firsts.sample.chomp} #{@surnames.sample.chomp}"
     @title = "#{@ranks.sample.chomp} #{@departments.sample.chomp} #{@titles.sample.chomp}"
     @company = "#{send(company.sample)}"
     out = "#{@name}, #{@title} at #{@company}"
