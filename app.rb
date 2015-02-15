@@ -111,22 +111,6 @@ def image(name, title, company)
 
   combined = (ImageList.new << image << append).append(false)
 
-  hearts = Array.new(6) do
-    heart = Image.read("./pixel-heart.png").first
-    heart.alpha(ActivateAlphaChannel)
-    #heart.rotate!([10, -10].sample)
-    heart
-  end
-
-  hearts.each_with_index do |heart, idx|
-    row = idx % 3
-    col = idx / 3
-    y = (row * 175) + (0..100).to_a.sample
-    x = (col * 300) + (0..200).to_a.sample
-    next if (1..100).to_a.sample < 50
-    combined.composite!(heart, x, y, OverCompositeOp)
-  end
-
   file.write(combined.to_blob)
   file.rewind
   file
