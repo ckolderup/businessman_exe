@@ -2,7 +2,10 @@ require 'tempfile'
 require 'twitter'
 require 'optparse'
 require 'RMagick'
+require 'dotenv'
 include Magick
+
+Dotenv.load
 
 options = {}
 OptionParser.new do |opts|
